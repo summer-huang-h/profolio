@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>黃舒筵的作品集</title>
+  <meta property="og:title" content="黃舒筵的作品集" />
+  <meta property="og:description" content=" " />
+  <meta name="description" content=" " />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "Segoe UI", Roboto, sans-serif;
+      background: #1c1a17;
+      position: relative;
+    }
+
+    /* ================= 1. 動態街景影片背景 ================= */
+    .scene-wrapper {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      transition: filter 0.45s cubic-bezier(0.22, 1, 0.36, 1), transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: filter, transform;
+    }
+
+    body.zoomed .scene-wrapper {
+      filter: blur(12px) brightness(0.62);
+      transform: scale(1.04);
+    }
+
+    .bg-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 70.5% center;
+      pointer-events: none;
+    }
+
+    /* ================= 2. 電線桿上的 9 張傳單容器 ================= */
+    .pole-flyers-zone {
+      position: absolute;
+      left: 70.5%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      perspective: 1800px;
+      z-index: 10;
+      transition: opacity 0.3s ease;
+    }
+
+    body.zoomed .pole-flyers-zone {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .mini-flyer {
+      position: absolute;
+      cursor: pointer;
+      transition:
+        transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+        filter 0.25s ease;
+      transform-style: preserve-3d;
+    }
+
+    .mini-flyer:hover {
+      transform: translate(-50%, -50%) scale(1.26) rotateY(0deg) rotate(0deg) !important;
+      z-index: 99 !important;
+      filter: brightness(1.04) !important;
+    }
+
+    /* ================= 3. 微風吹拂紙張飄動動畫（5秒週期，單段膠帶款專用） ================= */
+    @keyframes paperFlutterA {
+      0%, 42%, 100% {
+        transform: rotateX(0deg) rotateY(0deg) skewX(0deg);
+        box-shadow: 2px 3px 8px rgba(15, 14, 12, 0.38);
+      }
+      52% {
+        transform: rotateX(16deg) rotateY(-4deg) skewX(-1.4deg);
+        box-shadow: 5px 12px 18px rgba(15, 14, 12, 0.3);
+      }
+      60% {
+        transform: rotateX(6deg) rotateY(2deg) skewX(0.7deg);
+        box-shadow: 3px 7px 12px rgba(15, 14, 12, 0.35);
+      }
+      68% {
+        transform: rotateX(12deg) rotateY(-3deg) skewX(-1deg);
+        box-shadow: 4px 10px 15px rgba(15, 14, 12, 0.32);
+      }
+      78% {
+        transform: rotateX(2deg) rotateY(1deg) skewX(0.3deg);
+        box-shadow: 2px 4px 9px rgba(15, 14, 12, 0.37);
+      }
+    }
+
+    @keyframes paperFlutterB {
+      0%, 38%, 100% {
+        transform: rotateX(0deg) rotateY(0deg) skewX(0deg);
+        box-shadow: 2px 3px 8px rgba(15, 14, 12, 0.38);
+      }
+      49% {
+        transform: rotateX(18deg) rotateY(4.5deg) skewX(1.6deg);
+        box-shadow: 6px 13px 19px rgba(15, 14, 12, 0.3);
+      }
+      58% {
+        transform: rotateX(7deg) rotateY(-1.5deg) skewX(-0.6deg);
+        box-shadow: 3px 7px 12px rgba(15, 14, 12, 0.35);
+      }
+      67% {
+        transform: rotateX(13deg) rotateY(3.5deg) skewX(1.2deg);
+        box-shadow: 4px 10px 16px rgba(15, 14, 12, 0.32);
+      }
+      76% {
+        transform: rotateX(2deg) rotateY(-1deg) skewX(-0.2deg);
+        box-shadow: 2px 4px 9px rgba(15, 14, 12, 0.37);
+      }
+    }
+
+    .paper-sheet {
+      width: 100%;
+      height: 100%;
+      background: #fdfbf7;
+      border-radius: 0px;
+      position: relative;
+      transform-origin: 50% 4px;
+      transform-style: preserve-3d;
+      box-shadow: 2px 3px 8px rgba(15, 14, 12, 0.4);
+      will-change: transform, box-shadow;
+    }
+
+    .mini-flyer.can-flutter .paper-sheet {
+      animation-duration: 5s;
+      animation-timing-function: ease-in-out;
+      animation-iteration-count: infinite;
+    }
+
+    .mini-flyer.double-taped .paper-sheet {
+      box-shadow: 1.5px 2.5px 6px rgba(15, 14, 12, 0.42);
+    }
+
+    .mini-flyer:hover .paper-sheet {
+      animation-play-state: paused;
+      transform: rotateX(0deg) rotateY(0deg) skewX(0deg) !important;
+      box-shadow: 0 18px 36px rgba(0, 0, 0, 0.65) !important;
+    }
+
+    .mini-flyer.is-next {
+      z-index: 50 !important;
+    }
+
+    .mini-flyer-inner {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      border-radius: 0px;
+      position: relative;
+    }
+
+    .mini-flyer-inner img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .cylinder-shade {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 4;
+      transition: opacity 0.25s ease;
+    }
+
+    .mini-flyer:hover .cylinder-shade {
+      opacity: 0.15;
+    }
+
+    .mini-tape-top {
+      position: absolute;
+      top: -4px;
+      left: 50%;
+      transform: translateX(-50%) rotate(-1deg);
+      width: 30%;
+      height: 6px;
+      z-index: 10;
+      box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .mini-tape-bottom {
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      transform: translateX(-50%) rotate(1.5deg);
+      width: 30%;
+      height: 6px;
+      z-index: 10;
+      box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    /* ================= 4. 動態引導滑鼠鼠標 ================= */
+    .guide-cursor {
+      position: absolute;
+      width: 44px;
+      height: 44px;
+      z-index: 80;
+      pointer-events: none;
+      transition:
+        left 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+        top 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.3s ease;
+    }
+
+    @keyframes cursorRipple {
+      0% {
+        transform: translate(-50%, -50%) scale(0.3);
+        opacity: 0.85;
+      }
+      75% {
+        transform: translate(-50%, -50%) scale(1.45);
+        opacity: 0;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(1.45);
+        opacity: 0;
+      }
+    }
+
+    .cursor-ripple {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 2.5px solid #ffffff;
+      background: rgba(255, 255, 255, 0.25);
+      animation: cursorRipple 1.6s infinite ease-out;
+    }
+
+    @keyframes cursorTap {
+      0%, 100% {
+        transform: translate(0, 0) scale(1);
+      }
+      45% {
+        transform: translate(-3px, -4px) scale(0.92);
+      }
+      65% {
+        transform: translate(0, 0) scale(1);
+      }
+    }
+
+    .cursor-hand {
+      width: 36px;
+      height: 36px;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.55));
+      animation: cursorTap 1.6s infinite ease-in-out;
+    }
+
+    /* ================= 5. Zoom-in 放大閱讀視窗（支援局部放大檢視小字） ================= */
+    .reader-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+
+    body.zoomed .reader-overlay {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .reader-card {
+      position: relative;
+      border-radius: 0px;
+      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.68);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: scale(0.84) translateY(16px);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    body.zoomed .reader-card {
+      transform: scale(1) translateY(0);
+    }
+
+    .btn-close {
+      position: fixed;
+      top: 20px;
+      right: 24px;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      background: rgba(24, 22, 20, 0.82);
+      backdrop-filter: blur(8px);
+      color: #ffffff;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, transform 0.15s;
+      z-index: 60;
+    }
+
+    .btn-close:hover {
+      background: rgba(24, 22, 20, 0.96);
+      transform: scale(1.06);
+    }
+
+    .reader-card img {
+      display: block;
+      width: auto;
+      height: auto;
+      max-width: 92vw;
+      max-height: 88vh;
+      object-fit: contain;
+      cursor: zoom-in;
+      transform-origin: center center;
+      transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .reader-card.is-inspected img {
+      transform: scale(2);
+      cursor: zoom-out;
+    }
+
+    .back-hint {
+      margin-top: 12px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.82);
+      letter-spacing: 0.4px;
+      cursor: pointer;
+    }
+
+    .back-hint:hover {
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. 動態街景影片背景 -->
+  <div class="scene-wrapper" id="sceneWrapper">
+    <video class="bg-video" id="bgVideo" src="./bg.mp4?v=41" poster="./bg.jpg?v=41" autoplay loop muted playsinline></video>
+  </div>
+
+  <!-- 2. 電線桿上的 9 張傳單區 -->
+  <div class="pole-flyers-zone" id="poleFlyersZone"></div>
+
+  <!-- 3. Zoom-in 放大閱讀視窗 -->
+  <div class="reader-overlay" id="readerOverlay">
+    <button class="btn-close" id="closeBtn" title="返回電線桿 (ESC)">✕</button>
+    <div class="reader-card" id="readerCard"></div>
+    <div class="back-hint" id="backHint">點擊傳單可局部放大，點擊空白處或按 ESC 返回電線桿</div>
+  </div>
+
+  <script>
+    const FLYERS_DATA = [
+      { imageUrl: "./1.png?v=1124" },
+      { imageUrl: "./2.png?v=1124" },
+      { imageUrl: "./3.png?v=1124" },
+      { imageUrl: "./4.png?v=1124" },
+      { imageUrl: "./5.png?v=1124" },
+      { imageUrl: "./6.png?v=1124" },
+      { imageUrl: "./7.png?v=1124" },
+      { imageUrl: "./8.png?v=1124" },
+      { imageUrl: "./9.png?v=1124" }
+    ];
+
+    const POLE_LAYOUT = [
+      { x:
